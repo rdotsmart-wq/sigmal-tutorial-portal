@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SIGMAL TUTORIAL - Student Portal</title>
+  
+  <!-- FontAwesome Icons & Tailwind CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Supabase JS Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    body {
+      background-color: #f3f4f6;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    .sigmal-purple { background-color: #4c1d95; }
+    .sigmal-purple-light { background-color: #6d28d9; }
+    .sigmal-border { border-color: #4c1d95; }
+    .modal-overlay {
+      background-color: rgba(0, 0, 0, 0.4);
+    }
+  </style>
+</head>
+<body class="flex flex-col min-h-screen text-gray-800 pb-20">
+
+  <!-- ==================== LOGIN PAGE ==================== -->
+  <div id="loginPage" class="flex-1 flex flex-col items-center justify-center p-4">
+    <div class="w-full max-w-md bg-white rounded-xl shadow-xl overflow-hidden border border-gray-200">
+      
+      <!-- Top Branding Header -->
+      <div class="sigmal-purple text-white text-center py-5 px-6 relative">
+        <h1 class="text-2xl font-extrabold tracking-wider">SIGMAL TUTORIAL</h1>
+        <p class="text-xs text-purple-200 italic mt-1 font-medium">"Chasing Excellence"</p>
+      </div>
+
+      <div class="p-6 text-center">
+        <!-- Welcoming & Complimentary Intro Section -->
+        <div class="mb-6 bg-purple-50 p-4 rounded-lg border border-purple-100">
+          <div class="w-16 h-16 bg-purple-200 rounded-full flex items-center justify-center mx-auto mb-3 text-purple-800 text-2xl shadow-inner">
+            <i class="fas fa-graduation-cap"></i>
+          </div>
+          <h2 class="text-base font-bold text-purple-950 mb-1">Welcome, Esteemed Scholar!</h2>
+          <p class="text-xs text-gray-700 leading-relaxed font-normal">
+            We are honored to have you here. At <strong>SIGMAL TUTORIAL</strong>, your dedication and passion drive us forward. Log in to access your dashboard, monitor your academic milestones, and continue <strong>Chasing Excellence</strong>!
+          </p>
+        </div>
+
+        <!-- Login Form Fields -->
+        <div class="space-y-4 text-left">
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 mb-1">Student ID / Registration No</label>
+            <div class="relative">
+              <input id="loginMatric" type="text" placeholder="e.g. MS20250102130" class="w-full border-b-2 border-gray-300 focus:border-purple-700 outline-none py-2 px-1 text-sm bg-transparent">
+              <i class="fas fa-id-card absolute right-2 top-3 text-gray-400"></i>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 mb-1">Password</label>
+            <div class="relative">
+              <input id="loginPassword" type="password" placeholder="Password" class="w-full border-b-2 border-gray-300 focus:border-purple-700 outline-none py-2 px-1 text-sm bg-transparent">
+              <i class="fas fa-eye absolute right-2 top-3 text-gray-400 cursor-pointer" onclick="togglePassword()"></i>
+            </div>
+          </div>
+
+          <div class="flex items-center text-xs text-gray-600 space-x-2 pt-2">
+            <input type="checkbox" id="staffLogin" class="rounded text-purple-700">
+            <label for="staffLogin" class="text-purple-900 font-medium">Login as Tutor / Admin</label>
+          </div>
+
+          <button onclick="handleLogin()" class="w-full mt-4 bg-purple-700 hover:bg-purple-800 text-white font-bold py-2.5 px-4 rounded-lg text-sm shadow-md transition duration-200">
+            VERIFY ACCOUNT
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== STUDENT DASHBOARD ==================== -->
+  <div id="dashboardPage" class="hidden flex-1 flex flex-col">
+    <!-- Top Bar -->
+    <div class="sigmal-purple text-white py-3 px-4 flex justify-between items-center shadow-md">
+      <div>
+        <h1 class="text-base font-bold tracking-wide">SIGMAL TUTORIAL</h1>
+        <p class="text-[10px] text-purple-200 italic">Chasing Excellence</p>
+      </div>
+      <button onclick="handleLogout()" class="text-white text-sm bg-purple-800 px-3 py-1 rounded hover:bg-purple-950 font-semibold">
+        Logout
+      </button>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="p-4 flex-1 max-w-md mx-auto w-full space-y-4">
+      
+      <!-- Profile Picture Header Card -->
+      <div class="text-center">
+        <div class="w-28 h-28 mx-auto rounded-xl overflow-hidden border-4 border-purple-400 bg-gray-200 shadow-md">
+          <img id="studentPhoto" src="https://via.placeholder.com/150" alt="Student Photo" class="w-full h-full object-cover">
+        </div>
+        <p class="text-xs font-bold uppercase tracking-wider text-purple-900 mt-2">STUDENT PROFILE</p>
+      </div>
+
+      <!-- Student Info Card -->
+      <div class="bg-white rounded-lg border border-purple-200 shadow-sm p-4 space-y-2 text-xs">
+        <div>
+          <span class="font-bold block text-gray-800">Registration No:</span>
+          <span id="dispMatric" class="text-gray-600">---</span>
+        </div>
+        <div>
+          <span class="font-bold block text-gray-800">Surname:</span>
+          <span id="dispSurname" class="text-gray-600">---</span>
+        </div>
+        <div>
+          <span class="font-bold block text-gray-800">Other Names:</span>
+          <span id="dispOtherNames" class="text-gray-600">---</span>
+        </div>
+        <div>
+          <span class="font-bold block text-gray-800">Department / Course:</span>
+          <span id="dispCourse" class="text-gray-600">Statistics</span>
+        </div>
+        <div>
+          <span class="font-bold block text-gray-800">Programme:</span>
+          <span id="dispProgramme" class="text-gray-600">National Diploma</span>
+        </div>
+        <div>
+          <span class="font-bold block text-gray-800">Level / Cadre:</span>
+          <span id="dispLevel" class="text-gray-600">ND I FT</span>
+        </div>
+        <div>
+          <span class="font-bold block text-gray-800">Phone Number:</span>
+          <span id="dispPhone" class="text-purple-700">---</span>
+        </div>
+        <div>
+          <span class="font-bold block text-gray-800">Email Address:</span>
+          <span id="dispEmail" class="text-gray-600">---</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Floating Action Menu (+ Button) -->
+    <div class="fixed bottom-16 right-4 z-20 flex flex-col items-end space-y-2">
+      <!-- Hidden Sub-Buttons -->
+      <div id="fabMenu" class="hidden flex flex-col items-end space-y-2 mb-2">
+        <button onclick="showSection('Registered Courses', 'courses')" class="flex items-center space-x-2 bg-purple-800 text-white text-xs px-3 py-2 rounded-full shadow-lg hover:bg-purple-900">
+          <span>Registered Courses</span>
+          <i class="fas fa-book"></i>
+        </button>
+        <button onclick="showSection('Attendance Record', 'attendance')" class="flex items-center space-x-2 bg-purple-800 text-white text-xs px-3 py-2 rounded-full shadow-lg hover:bg-purple-900">
+          <span>Attendance Record</span>
+          <i class="fas fa-user-check"></i>
+        </button>
+        <button onclick="showSection('GPA & Performance', 'gpa_standing')" class="flex items-center space-x-2 bg-purple-800 text-white text-xs px-3 py-2 rounded-full shadow-lg hover:bg-purple-900">
+          <span>GPA & Standing</span>
+          <i class="fas fa-chart-line"></i>
+        </button>
+        <button onclick="showSection('Announcements', 'announcements')" class="flex items-center space-x-2 bg-purple-800 text-white text-xs px-3 py-2 rounded-full shadow-lg hover:bg-purple-900">
+          <span>Announcements</span>
+          <i class="fas fa-bullhorn"></i>
+        </button>
+      </div>
+
+      <!-- Main Red Toggle Button -->
+      <button onclick="toggleFab()" class="w-12 h-12 bg-red-500 hover:bg-red-600 text-white rounded-full shadow-xl flex items-center justify-center text-xl font-bold focus:outline-none">
+        <i id="fabIcon" class="fas fa-plus"></i>
+      </button>
+    </div>
+
+    <!-- Ticker / Motto Footer Bar -->
+    <div class="sigmal-purple text-white text-[10px] py-1 px-2 whitespace-nowrap overflow-hidden">
+      <p class="animate-marquee font-medium">Welcome to SIGMAL TUTORIAL Portal ... Motto: Chasing Excellence ... Academic success begins here!</p>
+    </div>
+
+    <!-- Bottom Navigation Tabs -->
+    <div class="fixed bottom-0 left-0 right-0 bg-purple-950 text-white flex justify-around items-center py-2 text-[10px] z-10 border-t border-purple-900">
+      <button onclick="alert('Courses Tab')" class="flex flex-col items-center opacity-80 hover:opacity-100">
+        <i class="fas fa-file-alt text-base mb-1"></i>
+        <span>Courses</span>
+      </button>
+      <button onclick="openResultModal()" class="flex flex-col items-center opacity-80 hover:opacity-100">
+        <i class="fas fa-poll text-base mb-1"></i>
+        <span>Results</span>
+      </button>
+      <button onclick="alert('Profile Settings')" class="flex flex-col items-center opacity-80 hover:opacity-100">
+        <i class="fas fa-user text-base mb-1"></i>
+        <span>Profile</span>
+      </button>
+      <button onclick="alert('Tutorial Schedule')" class="flex flex-col items-center opacity-80 hover:opacity-100">
+        <i class="fas fa-calendar-alt text-base mb-1"></i>
+        <span>Schedule</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ==================== POPUP MODAL ==================== -->
+  <div id="infoModal" class="hidden fixed inset-0 modal-overlay z-30 flex items-center justify-center p-4">
+    <div class="bg-purple-50 rounded-lg shadow-xl w-full max-w-xs overflow-hidden border border-purple-200">
+      <div class="bg-purple-200 px-4 py-3 flex justify-between items-center border-b border-purple-300">
+        <h3 id="modalTitle" class="font-bold text-sm text-purple-950">Information</h3>
+        <button onclick="closeModal()" class="text-purple-950 font-bold text-lg">&times;</button>
+      </div>
+      <div id="modalBody" class="p-4 text-xs text-gray-800 space-y-2">
+        <!-- Dynamic content will load here -->
+      </div>
+      <div class="p-3 bg-purple-100 text-right">
+        <button onclick="closeModal()" class="bg-purple-800 text-white px-3 py-1 rounded text-xs font-semibold">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // === SUPABASE INITIALIZATION ===
+    const SUPABASE_URL = "https://qryudkfalcqrghutyabm.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_hl8MpibzX_rF0x9bQdoW8w_kZK8_0II";
+    
+    const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    let currentUserData = null;
+
+    function togglePassword() {
+      const pwd = document.getElementById('loginPassword');
+      pwd.type = pwd.type === 'password' ? 'text' : 'password';
+    }
+
+    function toggleFab() {
+      const menu = document.getElementById('fabMenu');
+      const icon = document.getElementById('fabIcon');
+      if (menu.classList.contains('hidden')) {
+        menu.classList.remove('hidden');
+        icon.classList.replace('fa-plus', 'fa-times');
+      } else {
+        menu.classList.add('hidden');
+        icon.classList.replace('fa-times', 'fa-plus');
+      }
+    }
+
+    async function handleLogin() {
+      const matric = document.getElementById('loginMatric').value.trim();
+      const password = document.getElementById('loginPassword').value.trim();
+
+      if (!matric || !password) {
+        alert('Please enter your Student ID and Password.');
+        return;
+      }
+
+      // Query database cleanly
+      const { data, error } = await db
+        .from('results')
+        .select('*')
+        .eq('matric_no', matric)
+        .eq('password', password);
+
+      if (error) {
+        alert('Database Error: ' + error.message);
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        alert('Invalid Student ID or Password. Please check your credentials.');
+        return;
+      }
+
+      currentUserData = data[0];
+      populateDashboard(currentUserData);
+
+      document.getElementById('loginPage').classList.add('hidden');
+      document.getElementById('dashboardPage').classList.remove('hidden');
+    }
+
+    function populateDashboard(data) {
+      document.getElementById('dispMatric').innerText = data.matric_no || 'N/A';
+      document.getElementById('dispSurname').innerText = data.surname || 'N/A';
+      document.getElementById('dispOtherNames').innerText = data.other_names || 'N/A';
+      document.getElementById('dispCourse').innerText = data.course || 'Statistics';
+      document.getElementById('dispProgramme').innerText = data.programme || 'National Diploma';
+      document.getElementById('dispLevel').innerText = data.level || 'ND I FT';
+      document.getElementById('dispPhone').innerText = data.phone || 'N/A';
+      document.getElementById('dispEmail').innerText = data.email || 'N/A';
+      
+      if (data.photo_url) {
+        document.getElementById('studentPhoto').src = data.photo_url;
+      }
+    }
+
+    function showSection(title, key) {
+      toggleFab();
+      document.getElementById('modalTitle').innerText = title;
+      
+      let val = currentUserData ? currentUserData[key] : null;
+      if (!val) {
+        val = "No record available for " + title + ".";
+      }
+
+      document.getElementById('modalBody').innerHTML = `<p class="font-medium text-gray-800">${val}</p>`;
+      document.getElementById('infoModal').classList.remove('hidden');
+    }
+
+    function openResultModal() {
+      document.getElementById('modalTitle').innerText = "Select Assessment Type";
+      document.getElementById('modalBody').innerHTML = `
+        <div class="space-y-3">
+          <label class="flex items-center space-x-2">
+            <input type="radio" name="resType" value="ca" checked class="text-purple-700">
+            <span>Continuous Assessment (CA)</span>
+          </label>
+          <label class="flex items-center space-x-2">
+            <input type="radio" name="resType" value="sem">
+            <span>Mock / Examination Result</span>
+          </label>
+          <button onclick="viewScores()" class="w-full mt-2 bg-purple-800 text-white py-1.5 rounded font-bold">VIEW RESULT</button>
+        </div>
+      `;
+      document.getElementById('infoModal').classList.remove('hidden');
+    }
+
+    function viewScores() {
+      const scoreText = currentUserData && currentUserData.score ? currentUserData.score : "No scores uploaded yet.";
+      document.getElementById('modalTitle').innerText = "Academic Results Summary";
+      document.getElementById('modalBody').innerHTML = `
+        <div class="bg-white p-3 rounded border border-purple-200">
+          <p class="font-bold text-purple-950 mb-1">Scores / Remarks:</p>
+          <p class="text-sm font-semibold text-gray-800">${scoreText}</p>
+        </div>
+      `;
+    }
+
+    function closeModal() {
+      document.getElementById('infoModal').classList.add('hidden');
+    }
+
+    function handleLogout() {
+      currentUserData = null;
+      document.getElementById('dashboardPage').classList.add('hidden');
+      document.getElementById('loginPage').classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>
